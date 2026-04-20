@@ -556,8 +556,8 @@
 
   <p class="hero-sub">Parts, faults, history, crash tests, market value, service, and more. Every detail about every car. One place.</p>
 
-  <form class="hero-form" id="hero-form" onsubmit="handleSubmit(event, 'hero-btn', 'hero-email')">
-    <input type="email" id="hero-email" placeholder="Your email address" required autocomplete="email">
+  <form class="hero-form" id="hero-form" onsubmit="handleFormspree(event, 'hero-btn', 'hero-email')">
+    <input type="email" id="hero-email" name="email" placeholder="Your email address" required autocomplete="email">
     <button type="submit" id="hero-btn">Get early access</button>
   </form>
 
@@ -745,8 +745,8 @@
     <p class="section-label">Early access</p>
     <h2 class="section-title" style="max-width:100%;text-align:center">Be first when<br>Gauged launches.</h2>
     <p class="section-body" style="max-width:100%;text-align:center;margin:0 auto">Join the waitlist and get early access before the public launch. No spam, no noise -- just a heads up when it's ready.</p>
-    <form class="early-form" id="early-form" onsubmit="handleSubmit(event, 'early-btn', 'early-email')">
-      <input type="email" id="early-email" placeholder="Your email address" required autocomplete="email">
+    <form class="early-form" id="early-form" onsubmit="handleFormspree(event, 'early-btn', 'early-email')">
+      <input type="email" id="early-email" name="email" placeholder="Your email address" required autocomplete="email">
       <button type="submit" id="early-btn">Join the waitlist</button>
     </form>
   </div>
@@ -758,16 +758,33 @@
 </footer>
 
 <script>
-function handleSubmit(e, btnId, inputId) {
+async function handleFormspree(e, btnId, inputId) {
   e.preventDefault();
   const btn = document.getElementById(btnId);
   const input = document.getElementById(inputId);
-  const email = input.value;
-  btn.textContent = 'You\'re on the list!';
-  btn.classList.add('success');
+  const originalText = btn.textContent;
+  btn.textContent = 'Sending...';
   btn.disabled = true;
   input.disabled = true;
-  console.log('Waitlist signup:', email);
+  try {
+    const res = await fetch('https://formspree.io/f/mzdyazqg', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ email: input.value, source: btnId })
+    });
+    if (res.ok) {
+      btn.textContent = "You're on the list!";
+      btn.classList.add('success');
+    } else {
+      btn.textContent = 'Try again';
+      btn.disabled = false;
+      input.disabled = false;
+    }
+  } catch {
+    btn.textContent = 'Try again';
+    btn.disabled = false;
+    input.disabled = false;
+  }
 }
 </script>
 
